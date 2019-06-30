@@ -1,11 +1,17 @@
 package main
 
 import (
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/kaz/flos-garden/collector"
 	"github.com/kaz/flos-garden/database"
 	"github.com/labstack/echo/v4"
+)
+
+var (
+	logger = log.New(os.Stdout, "[http] ", log.Ltime)
 )
 
 func main() {
@@ -13,13 +19,15 @@ func main() {
 	e.HideBanner = true
 
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
-		c.JSON(http.StatusInternalServerError, map[string]error{"error": err})
+		logger.Println(err)
+		c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
 	database.Init()
 	collector.Init()
 
 	api := e.Group("/api")
+	database.RegisterHandler(api.Group("/database"))
 	collector.RegisterHandler(api.Group("/collector"))
 
 	e.Logger.Fatal(e.Start(":9000"))
