@@ -1,15 +1,10 @@
 package database
 
 import (
+	"io/ioutil"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-)
-
-type (
-	QueryRequest struct {
-		Query string
-	}
 )
 
 func RegisterHandler(g *echo.Group) {
@@ -17,12 +12,12 @@ func RegisterHandler(g *echo.Group) {
 }
 
 func postQuery(c echo.Context) error {
-	var req QueryRequest
-	if err := c.Bind(&req); err != nil {
+	sql, err := ioutil.ReadAll(c.Request().Body)
+	if err != nil {
 		return err
 	}
 
-	rows, err := Query(req.Query)
+	rows, err := Query(string(sql))
 	if err != nil {
 		return err
 	}
