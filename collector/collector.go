@@ -5,14 +5,11 @@ import (
 	"log"
 	"os"
 	"sync"
-	"time"
 
 	"github.com/kaz/flos-garden/database"
 )
 
 const (
-	INSTANCE_CHECK_SEC = 10
-
 	TABLE_OPTION = "CHARACTER SET utf8mb4"
 )
 
@@ -24,43 +21,22 @@ var (
 )
 
 func Init() {
-	if _, err := database.Exec("CREATE TABLE IF NOT EXISTS instances (id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT, addr TEXT)" + TABLE_OPTION); err != nil {
+	if _, err := database.Exec("CREATE TABLE IF NOT EXISTS instances (id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT, addr TEXT UNIQUE, bastion BOOL)" + TABLE_OPTION); err != nil {
 		panic(err)
 	}
 
-	go runMaster()
-}
+	rows, err := database.Query("SELECT addr FROM instances")
+	if err != nil {
+		panic(err)
+	}
 
-func runMaster() {
-	for {
-		rows, err := database.Query("SELECT addr FROM instances")
-		if err != nil {
-			logger.Printf("query failed: %v\n", err)
-			continue
+	for rows.Next() {
+		var addr string
+		if err := rows.Scan(&addr); err != nil {
+			panic(err)
 		}
 
-		addrs := map[string]interface{}{}
-		for rows.Next() {
-			var addr string
-			if err := rows.Scan(&addr); err != nil {
-				logger.Printf("scan failed: %v\n", err)
-				continue
-			}
-
-			addrs[addr] = nil
-			go runWorker(addr)
-		}
-
-		mu.RLock()
-		for addr, cancel := range workers {
-			if _, ok := addrs[addr]; !ok {
-				cancel()
-				delete(workers, addr)
-			}
-		}
-		mu.RUnlock()
-
-		time.Sleep(INSTANCE_CHECK_SEC * time.Second)
+		go runWorker(addr)
 	}
 }
 
@@ -71,4 +47,5 @@ func runWorker(addr string) {
 	workers[addr] = cancel
 	mu.Unlock()
 
+	logger.Println("worker started:", addr)
 }
