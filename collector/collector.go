@@ -6,6 +6,8 @@ import (
 	"os"
 	"sync"
 
+	"github.com/kaz/flos-garden/collector/lifeline"
+
 	"github.com/kaz/flos-garden/collector/bookshelf"
 	"github.com/kaz/flos-garden/common"
 	"github.com/kaz/flos-garden/database"
@@ -52,6 +54,10 @@ func runWorker(addr string) {
 	workers[addr] = cancel
 	mu.Unlock()
 
+	if err := lifeline.RunLifelineCollector(ctx, addr); err != nil {
+		logger.Printf("failed to start lifeline collector: %v (host=%s)\n", err, addr)
+		return
+	}
 	if err := bookshelf.RunLibraCollector(ctx, addr); err != nil {
 		logger.Printf("failed to start libra collector: %v (host=%s)\n", err, addr)
 		return

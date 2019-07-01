@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/kaz/flos-garden/common"
 	"github.com/kaz/flos-garden/database"
@@ -23,17 +22,8 @@ type (
 	}
 )
 
-var (
-	tz *time.Location
-)
-
 func Init() {
-	var err error
-	if tz, err = time.LoadLocation("Asia/Tokyo"); err != nil {
-		panic(err)
-	}
-
-	if _, err = database.DB().Exec("CREATE TABLE IF NOT EXISTS bookshelf_cursor (host TEXT, name TEXT, cur BIGINT UNSIGNED, PRIMARY KEY(host(128), name(128)))" + common.TABLE_OPTION); err != nil {
+	if _, err := database.DB().Exec("CREATE TABLE IF NOT EXISTS bookshelf_cursor (host TEXT, name TEXT, cur BIGINT UNSIGNED, PRIMARY KEY(host(128), name(128)))" + common.TABLE_OPTION); err != nil {
 		panic(err)
 	}
 }
@@ -100,7 +90,7 @@ func (c *collector) collect() error {
 			"remote_id": book.ID,
 			"series":    book.Series,
 			"contents":  book.Contents,
-			"created":   time.Unix(0, book.Timestamp).In(tz),
+			"created":   common.Time(book.Timestamp),
 		})
 		if err != nil {
 			return fmt.Errorf("failed to insert record: %v\n", err)
