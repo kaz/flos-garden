@@ -33,5 +33,6 @@ func main() {
 	database.RegisterHandler(api.Group("/database"))
 	collector.RegisterHandler(api.Group("/collector"))
 
+	e.Static("/", "./view/dist")
 	e.Logger.Fatal(e.Start(":9000"))
 }
