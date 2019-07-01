@@ -48,7 +48,7 @@ func Init() {
 		panic(err)
 	}
 
-	if _, err = database.DB().Exec("CREATE TABLE IF NOT EXISTS bookshelf_cursor (name TEXT, host TEXT, cur BIGINT UNSIGNED, PRIMARY KEY(name(128), host(128)))" + TABLE_OPTION); err != nil {
+	if _, err = database.DB().Exec("CREATE TABLE IF NOT EXISTS bookshelf_cursor (host TEXT, name TEXT, cur BIGINT UNSIGNED, PRIMARY KEY(host(128), name(128)))" + TABLE_OPTION); err != nil {
 		panic(err)
 	}
 }
@@ -66,7 +66,7 @@ func newBookshelfCollector(ctx context.Context, name string, host string, path s
 	}
 
 	var cur uint64
-	if err := database.DB().QueryRow("SELECT cur FROM bookshelf_cursor WHERE name = ? AND host = ?", name, host).Scan(&cur); err != nil {
+	if err := database.DB().QueryRow("SELECT cur FROM bookshelf_cursor WHERE host = ? AND name = ?", host, name).Scan(&cur); err != nil {
 		logger.Println("No cursor found. Set to 0.")
 		cur = 0
 	}
@@ -194,7 +194,7 @@ func (c *collector) collect() error {
 		return fmt.Errorf("failed to delete books: %v\n", string(respBody))
 	}
 
-	if _, err := database.DB().ExecContext(c.ctx, "REPLACE INTO bookshelf_cursor VALUES (?, ?, ?)", c.name, c.host, curMax+1); err != nil {
+	if _, err := database.DB().ExecContext(c.ctx, "REPLACE INTO bookshelf_cursor VALUES (?, ?, ?)", c.host, c.name, curMax+1); err != nil {
 		return fmt.Errorf("failed to update cursor: %v\n", err)
 	}
 
