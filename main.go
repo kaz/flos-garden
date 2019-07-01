@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/kaz/flos-garden/action"
 	"github.com/kaz/flos-garden/collector"
 	"github.com/kaz/flos-garden/database"
 	"github.com/kaz/flos/messaging"
@@ -28,6 +29,7 @@ func main() {
 	collector.Init()
 
 	api := e.Group("/api")
+	action.RegisterHandler(api.Group("/action"))
 	database.RegisterHandler(api.Group("/database"))
 	collector.RegisterHandler(api.Group("/collector"))
 
