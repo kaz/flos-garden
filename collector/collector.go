@@ -24,11 +24,11 @@ var (
 func Init() {
 	bookshelf.Init()
 
-	if _, err := database.Exec("CREATE TABLE IF NOT EXISTS instances (host TEXT, bastion BOOL, PRIMARY KEY(host(128)))" + TABLE_OPTION); err != nil {
+	if _, err := database.DB().Exec("CREATE TABLE IF NOT EXISTS instances (host TEXT, bastion BOOL, PRIMARY KEY(host(128)))" + TABLE_OPTION); err != nil {
 		panic(err)
 	}
 
-	rows, err := database.Query("SELECT host FROM instances")
+	rows, err := database.DB().Query("SELECT host FROM instances")
 	if err != nil {
 		panic(err)
 	}

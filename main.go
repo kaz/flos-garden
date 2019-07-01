@@ -7,6 +7,7 @@ import (
 
 	"github.com/kaz/flos-garden/collector"
 	"github.com/kaz/flos-garden/database"
+	"github.com/kaz/flos/messaging"
 	"github.com/labstack/echo/v4"
 )
 
@@ -23,7 +24,7 @@ func main() {
 		c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
-	database.Init()
+	messaging.Init()
 	collector.Init()
 
 	api := e.Group("/api")

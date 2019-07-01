@@ -28,7 +28,7 @@ func getInstances(c echo.Context) error {
 func putInstance(c echo.Context) error {
 	addr := c.Param("addr")
 
-	if _, err := database.Exec("INSERT INTO instances VALUES (?, ?)", addr, c.QueryParam("bastion") != ""); err != nil {
+	if _, err := database.DB().Exec("INSERT INTO instances VALUES (?, ?)", addr, c.QueryParam("bastion") != ""); err != nil {
 		return err
 	}
 
@@ -40,7 +40,7 @@ func putInstance(c echo.Context) error {
 func deleteInstance(c echo.Context) error {
 	addr := c.Param("addr")
 
-	result, err := database.Exec("DELETE FROM instances WHERE host = ?", addr)
+	result, err := database.DB().Exec("DELETE FROM instances WHERE host = ?", addr)
 	if err != nil {
 		return err
 	}

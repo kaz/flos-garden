@@ -17,7 +17,7 @@ func postQuery(c echo.Context) error {
 		return err
 	}
 
-	rows, err := Query(string(sql))
+	rows, err := DB().Queryx(string(sql))
 	if err != nil {
 		return err
 	}
