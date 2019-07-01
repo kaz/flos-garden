@@ -43,11 +43,15 @@ func Request(method string, host string, path string, data interface{}, ctx cont
 		return nil, fmt.Errorf("failed to create request: %v\n", err)
 	}
 
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
 	if authorization != "" {
 		req.Header.Add("Authorization", authorization)
 	}
 
-	resp, err := http.DefaultClient.Do(req.WithContext(ctx))
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %v\n", err)
 	}
