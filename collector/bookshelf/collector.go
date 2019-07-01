@@ -3,7 +3,6 @@ package bookshelf
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -12,13 +11,6 @@ import (
 	"github.com/kaz/flos-garden/common"
 	"github.com/kaz/flos-garden/database"
 	"github.com/kaz/flos/libra/bookshelf"
-	"github.com/kaz/flos/messaging"
-)
-
-const (
-	TABLE_OPTION  = "CHARACTER SET utf8mb4"
-	REMOTE_LISTEN = ":10239"
-	COLLECT_SEC   = 8
 )
 
 type (
@@ -41,7 +33,7 @@ func Init() {
 		panic(err)
 	}
 
-	if _, err = database.DB().Exec("CREATE TABLE IF NOT EXISTS bookshelf_cursor (host TEXT, name TEXT, cur BIGINT UNSIGNED, PRIMARY KEY(host(128), name(128)))" + TABLE_OPTION); err != nil {
+	if _, err = database.DB().Exec("CREATE TABLE IF NOT EXISTS bookshelf_cursor (host TEXT, name TEXT, cur BIGINT UNSIGNED, PRIMARY KEY(host(128), name(128)))" + common.TABLE_OPTION); err != nil {
 		panic(err)
 	}
 }
@@ -50,7 +42,7 @@ func newBookshelfCollector(ctx context.Context, name string, host string, path s
 	logger := log.New(os.Stdout, "[bookshelf name="+name+" host="+host+"] ", log.Ltime)
 
 	table := "bookshelf_data_" + name
-	if _, err := database.DB().Exec("CREATE TABLE IF NOT EXISTS " + table + " (host TEXT, remote_id BIGINT UNSIGNED, series TEXT, contents " + contentType + ", created DATETIME(6), PRIMARY KEY(host(128), remote_id), KEY(series(128), created))" + TABLE_OPTION); err != nil {
+	if _, err := database.DB().Exec("CREATE TABLE IF NOT EXISTS " + table + " (host TEXT, remote_id BIGINT UNSIGNED, series TEXT, contents " + contentType + ", created DATETIME(6), PRIMARY KEY(host(128), remote_id), KEY(series(128), created))" + common.TABLE_OPTION); err != nil {
 		return nil, err
 	}
 
@@ -82,24 +74,17 @@ func (c *collector) collect() error {
 	if err != nil {
 		return fmt.Errorf("request failed: %v\n", err)
 	}
-	defer resp.Body.Close()
-
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("failed to read body: %v\n", err)
-	}
 
 	if resp.StatusCode != http.StatusOK {
 		var msg string
-		if err := messaging.Decode(respBody, &msg); err != nil {
+		if err := c.ReadBody(resp, &msg); err != nil {
 			return fmt.Errorf("failed to decode resp body: %v\n", err)
 		}
-
 		return fmt.Errorf("failed to get books: %v\n", msg)
 	}
 
 	var books []*bookshelf.Book
-	if err := messaging.Decode(respBody, &books); err != nil {
+	if err := c.ReadBody(resp, &books); err != nil {
 		return fmt.Errorf("failed to decode resp body: %v\n", err)
 	}
 
@@ -132,17 +117,11 @@ func (c *collector) collect() error {
 	defer delResp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		respBody, err = ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("failed to read body: %v\n", err)
-		}
-
 		var msg string
-		if err := messaging.Decode(respBody, &msg); err != nil {
+		if err := c.ReadBody(resp, &msg); err != nil {
 			return fmt.Errorf("failed to decode resp body: %v\n", err)
 		}
-
-		return fmt.Errorf("failed to delete books: %v\n", string(respBody))
+		return fmt.Errorf("failed to get books: %v\n", msg)
 	}
 
 	if _, err := database.DB().ExecContext(c.Context, "REPLACE INTO bookshelf_cursor VALUES (?, ?, ?)", c.Host, c.name, curMax+1); err != nil {

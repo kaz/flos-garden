@@ -11,10 +11,6 @@ import (
 	"github.com/kaz/flos-garden/database"
 )
 
-const (
-	TABLE_OPTION = "CHARACTER SET utf8mb4"
-)
-
 var (
 	logger = log.New(os.Stdout, "[collector] ", log.Ltime)
 
@@ -25,7 +21,7 @@ var (
 func Init() {
 	bookshelf.Init()
 
-	if _, err := database.DB().Exec("CREATE TABLE IF NOT EXISTS instances (host TEXT, bastion BOOL, PRIMARY KEY(host(128)))" + TABLE_OPTION); err != nil {
+	if _, err := database.DB().Exec("CREATE TABLE IF NOT EXISTS instances (host TEXT, bastion BOOL, PRIMARY KEY(host(128)))" + common.TABLE_OPTION); err != nil {
 		panic(err)
 	}
 
