@@ -19,6 +19,9 @@ func Init() {
 	}
 }
 
+func QueryRow(query string, args ...interface{}) *sqlx.Row {
+	return db.QueryRowx(query, args...)
+}
 func Query(query string, args ...interface{}) (*sqlx.Rows, error) {
 	return db.Queryx(query, args...)
 }

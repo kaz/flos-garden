@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/kaz/flos-garden/collector/bookshelf"
 	"github.com/kaz/flos-garden/database"
 )
 
@@ -21,11 +22,13 @@ var (
 )
 
 func Init() {
-	if _, err := database.Exec("CREATE TABLE IF NOT EXISTS instances (id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT, addr TEXT UNIQUE, bastion BOOL)" + TABLE_OPTION); err != nil {
+	bookshelf.Init()
+
+	if _, err := database.Exec("CREATE TABLE IF NOT EXISTS instances (host TEXT, bastion BOOL, PRIMARY KEY(host(128)))" + TABLE_OPTION); err != nil {
 		panic(err)
 	}
 
-	rows, err := database.Query("SELECT addr FROM instances")
+	rows, err := database.Query("SELECT host FROM instances")
 	if err != nil {
 		panic(err)
 	}
@@ -41,11 +44,19 @@ func Init() {
 }
 
 func runWorker(addr string) {
-	_, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 
 	mu.Lock()
 	workers[addr] = cancel
 	mu.Unlock()
 
+	if err := bookshelf.RunLibraCollector(ctx, addr); err != nil {
+		logger.Println("failed to start libra colelctor:", err)
+		return
+	}
+	if err := bookshelf.RunArchiveCollector(ctx, addr); err != nil {
+		logger.Println("failed to start archive colelctor:", err)
+		return
+	}
 	logger.Println("worker started:", addr)
 }
