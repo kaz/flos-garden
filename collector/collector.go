@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/kaz/flos-garden/collector/bookshelf"
+	"github.com/kaz/flos-garden/common"
 	"github.com/kaz/flos-garden/database"
 )
 
@@ -41,7 +42,7 @@ func Init() {
 		}
 
 		if bastion {
-			bookshelf.RegisterBastion(host)
+			common.RegisterBastion(host)
 		} else {
 			go runWorker(host)
 		}

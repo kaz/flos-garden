@@ -1,9 +1,7 @@
 package bookshelf
 
 import (
-	"bytes"
 	"context"
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -11,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/kaz/flos-garden/common"
 	"github.com/kaz/flos-garden/database"
 	"github.com/kaz/flos/libra/bookshelf"
 	"github.com/kaz/flos/messaging"
@@ -24,22 +23,16 @@ const (
 
 type (
 	collector struct {
-		logger *log.Logger
+		*common.Collector
 
-		cur   uint64
+		name  string
 		table string
-
-		name string
-		host string
-		path string
-
-		ctx context.Context
+		cur   uint64
 	}
 )
 
 var (
-	tz      *time.Location
-	bastion string
+	tz *time.Location
 )
 
 func Init() {
@@ -51,10 +44,6 @@ func Init() {
 	if _, err = database.DB().Exec("CREATE TABLE IF NOT EXISTS bookshelf_cursor (host TEXT, name TEXT, cur BIGINT UNSIGNED, PRIMARY KEY(host(128), name(128)))" + TABLE_OPTION); err != nil {
 		panic(err)
 	}
-}
-
-func RegisterBastion(host string) {
-	bastion = host
 }
 
 func newBookshelfCollector(ctx context.Context, name string, host string, path string, contentType string) (*collector, error) {
@@ -71,63 +60,25 @@ func newBookshelfCollector(ctx context.Context, name string, host string, path s
 		cur = 0
 	}
 
-	return &collector{logger, cur, table, name, host, path, ctx}, nil
-}
+	c := &collector{
+		Collector: &common.Collector{
+			Context: ctx,
+			Logger:  logger,
+			Host:    host,
+			Path:    path,
+		},
 
-func (c *collector) Collect() {
-	for {
-		select {
-		case <-c.ctx.Done():
-			return
-		default:
-			if err := c.collect(); err != nil {
-				c.logger.Println("collect failed:", err)
-			} else {
-				c.logger.Println("collected")
-			}
-		}
-		time.Sleep(COLLECT_SEC * time.Second)
-	}
-}
-
-func (c *collector) doRequest(method string, data uint64) (*http.Response, error) {
-	endpoint := "http://" + c.host + REMOTE_LISTEN + c.path
-	authorization := ""
-
-	if bastion != "" {
-		payload, err := messaging.Encode(c.host + REMOTE_LISTEN)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create payload: %v\n", err)
-		}
-
-		endpoint = "http://" + bastion + REMOTE_LISTEN + c.path
-		authorization = "bearer " + base64.StdEncoding.EncodeToString(payload)
+		name:  name,
+		table: table,
+		cur:   cur,
 	}
 
-	payload, err := messaging.Encode(float64(data))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create payload: %v\n", err)
-	}
-
-	req, err := http.NewRequest(method, endpoint, bytes.NewReader(payload))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %v\n", err)
-	}
-
-	if authorization != "" {
-		req.Header.Add("Authorization", authorization)
-	}
-
-	resp, err := http.DefaultClient.Do(req.WithContext(c.ctx))
-	if err != nil {
-		return nil, fmt.Errorf("request failed: %v\n", err)
-	}
-
-	return resp, nil
+	c.RegisterCollectFunc(c.collect)
+	return c, nil
 }
 
 func (c *collector) collect() error {
-	resp, err := c.doRequest(http.MethodPatch, c.cur)
+	resp, err := c.DoRequest(http.MethodPatch, float64(c.cur))
 	if err != nil {
 		return fmt.Errorf("request failed: %v\n", err)
 	}
@@ -152,15 +103,15 @@ func (c *collector) collect() error {
 		return fmt.Errorf("failed to decode resp body: %v\n", err)
 	}
 
-	stmt, err := database.DB().PrepareNamedContext(c.ctx, "REPLACE INTO "+c.table+" VALUES (:host, :remote_id, :series, :contents, :created)")
+	stmt, err := database.DB().PrepareNamedContext(c.Context, "REPLACE INTO "+c.table+" VALUES (:host, :remote_id, :series, :contents, :created)")
 	if err != nil {
 		return fmt.Errorf("failed to prepare statement: %v\n", err)
 	}
 
 	var curMax uint64
 	for _, book := range books {
-		_, err := stmt.ExecContext(c.ctx, map[string]interface{}{
-			"host":      c.host,
+		_, err := stmt.ExecContext(c.Context, map[string]interface{}{
+			"host":      c.Host,
 			"remote_id": book.ID,
 			"series":    book.Series,
 			"contents":  book.Contents,
@@ -174,7 +125,7 @@ func (c *collector) collect() error {
 		}
 	}
 
-	delResp, err := c.doRequest(http.MethodDelete, curMax)
+	delResp, err := c.DoRequest(http.MethodDelete, float64(curMax))
 	if err != nil {
 		return fmt.Errorf("request failed: %v\n", err)
 	}
@@ -194,7 +145,7 @@ func (c *collector) collect() error {
 		return fmt.Errorf("failed to delete books: %v\n", string(respBody))
 	}
 
-	if _, err := database.DB().ExecContext(c.ctx, "REPLACE INTO bookshelf_cursor VALUES (?, ?, ?)", c.host, c.name, curMax+1); err != nil {
+	if _, err := database.DB().ExecContext(c.Context, "REPLACE INTO bookshelf_cursor VALUES (?, ?, ?)", c.Host, c.name, curMax+1); err != nil {
 		return fmt.Errorf("failed to update cursor: %v\n", err)
 	}
 
