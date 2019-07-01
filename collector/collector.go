@@ -28,18 +28,23 @@ func Init() {
 		panic(err)
 	}
 
-	rows, err := database.DB().Query("SELECT host FROM instances")
+	rows, err := database.DB().Query("SELECT * FROM instances")
 	if err != nil {
 		panic(err)
 	}
 
 	for rows.Next() {
-		var addr string
-		if err := rows.Scan(&addr); err != nil {
+		var host string
+		var bastion bool
+		if err := rows.Scan(&host, &bastion); err != nil {
 			panic(err)
 		}
 
-		go runWorker(addr)
+		if bastion {
+			bookshelf.RegisterBastion(host)
+		} else {
+			go runWorker(host)
+		}
 	}
 }
 

@@ -3,6 +3,7 @@ package bookshelf
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -16,9 +17,9 @@ import (
 )
 
 const (
-	TABLE_OPTION = "CHARACTER SET utf8mb4"
-
-	COLLECT_SEC = 8
+	TABLE_OPTION  = "CHARACTER SET utf8mb4"
+	REMOTE_LISTEN = ":10239"
+	COLLECT_SEC   = 8
 )
 
 type (
@@ -90,20 +91,31 @@ func (c *collector) Collect() {
 }
 
 func (c *collector) doRequest(method string, data uint64) (*http.Response, error) {
-	endpoint := "http://" + c.host + ":10239" + c.path
+	endpoint := "http://" + c.host + REMOTE_LISTEN + c.path
+	authorization := ""
+
+	if bastion != "" {
+		payload, err := messaging.Encode(c.host + REMOTE_LISTEN)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create payload: %v\n", err)
+		}
+
+		endpoint = "http://" + bastion + REMOTE_LISTEN + c.path
+		authorization = "bearer " + base64.StdEncoding.EncodeToString(payload)
+	}
 
 	payload, err := messaging.Encode(float64(data))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create payload: %v\n", err)
 	}
 
-	req, err := http.NewRequest(http.MethodPatch, endpoint, bytes.NewReader(payload))
+	req, err := http.NewRequest(method, endpoint, bytes.NewReader(payload))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %v\n", err)
 	}
 
-	if bastion != "" {
-		// TODO
+	if authorization != "" {
+		req.Header.Add("Authorization", authorization)
 	}
 
 	resp, err := http.DefaultClient.Do(req.WithContext(c.ctx))
