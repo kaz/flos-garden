@@ -51,12 +51,12 @@ func runWorker(addr string) {
 	mu.Unlock()
 
 	if err := bookshelf.RunLibraCollector(ctx, addr); err != nil {
-		logger.Println("failed to start libra colelctor:", err)
+		logger.Printf("failed to start libra collector: %v (host=%s)\n", err, addr)
 		return
 	}
 	if err := bookshelf.RunArchiveCollector(ctx, addr); err != nil {
-		logger.Println("failed to start archive colelctor:", err)
+		logger.Printf("failed to start archive collector: %v (host=%s)\n", err, addr)
 		return
 	}
-	logger.Println("worker started:", addr)
+	logger.Printf("worker started (host=%s)\n", addr)
 }
