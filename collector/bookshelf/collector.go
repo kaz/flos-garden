@@ -67,14 +67,14 @@ func (c *collector) collect() error {
 
 	if resp.StatusCode != http.StatusOK {
 		var msg string
-		if err := c.ReadBody(resp, &msg); err != nil {
+		if err := common.ReadBody(resp, &msg); err != nil {
 			return fmt.Errorf("failed to decode resp body: %v\n", err)
 		}
 		return fmt.Errorf("failed to get books: %v\n", msg)
 	}
 
 	var books []*bookshelf.Book
-	if err := c.ReadBody(resp, &books); err != nil {
+	if err := common.ReadBody(resp, &books); err != nil {
 		return fmt.Errorf("failed to decode resp body: %v\n", err)
 	}
 
@@ -108,7 +108,7 @@ func (c *collector) collect() error {
 
 	if resp.StatusCode != http.StatusOK {
 		var msg string
-		if err := c.ReadBody(resp, &msg); err != nil {
+		if err := common.ReadBody(resp, &msg); err != nil {
 			return fmt.Errorf("failed to decode resp body: %v\n", err)
 		}
 		return fmt.Errorf("failed to get books: %v\n", msg)

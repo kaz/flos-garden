@@ -44,14 +44,14 @@ func (c *collector) collect() error {
 
 	if resp.StatusCode != http.StatusOK {
 		var msg string
-		if err := c.ReadBody(resp, &msg); err != nil {
+		if err := common.ReadBody(resp, &msg); err != nil {
 			return fmt.Errorf("failed to decode resp body: %v\n", err)
 		}
 		return fmt.Errorf("failed to get books: %v\n", msg)
 	}
 
 	var results map[string]*lifeline.Result
-	if err := c.ReadBody(resp, &results); err != nil {
+	if err := common.ReadBody(resp, &results); err != nil {
 		return fmt.Errorf("failed to decode resp body: %v\n", err)
 	}
 
