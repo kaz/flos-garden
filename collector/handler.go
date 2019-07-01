@@ -3,6 +3,7 @@ package collector
 import (
 	"net/http"
 
+	"github.com/kaz/flos-garden/common"
 	"github.com/kaz/flos-garden/database"
 	"github.com/labstack/echo/v4"
 )
@@ -27,12 +28,17 @@ func getInstances(c echo.Context) error {
 
 func putInstance(c echo.Context) error {
 	addr := c.Param("addr")
+	bastion := c.QueryParam("bastion") != ""
 
-	if _, err := database.DB().Exec("INSERT INTO instances VALUES (?, ?)", addr, c.QueryParam("bastion") != ""); err != nil {
+	if _, err := database.DB().Exec("INSERT INTO instances VALUES (?, ?)", addr, bastion); err != nil {
 		return err
 	}
 
-	go runWorker(addr)
+	if bastion {
+		common.RegisterBastion(addr)
+	} else {
+		go runWorker(addr)
+	}
 
 	return c.NoContent(http.StatusOK)
 }
