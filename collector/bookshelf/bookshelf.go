@@ -33,8 +33,17 @@ type (
 	}
 )
 
+var (
+	tz *time.Location
+)
+
 func Init() {
-	if _, err := database.DB().Exec("CREATE TABLE IF NOT EXISTS bookshelf_cursor (name TEXT, host TEXT, cur INT UNSIGNED, PRIMARY KEY(name(128), host(128)))" + TABLE_OPTION); err != nil {
+	var err error
+	if tz, err = time.LoadLocation("Asia/Tokyo"); err != nil {
+		panic(err)
+	}
+
+	if _, err = database.DB().Exec("CREATE TABLE IF NOT EXISTS bookshelf_cursor (name TEXT, host TEXT, cur BIGINT UNSIGNED, PRIMARY KEY(name(128), host(128)))" + TABLE_OPTION); err != nil {
 		panic(err)
 	}
 }
@@ -43,7 +52,7 @@ func newBookshelfCollector(name string, host string, path string, contentType st
 	logger := log.New(os.Stdout, "[bookshelf name="+name+" host="+host+"] ", log.Ltime)
 
 	table := "bookshelf_data_" + name
-	if _, err := database.DB().Exec("CREATE TABLE IF NOT EXISTS " + table + " (host TEXT, remote_id INT UNSIGNED, series TEXT, contents " + contentType + ", created DATETIME, PRIMARY KEY(host(128), remote_id), KEY(series(128), created))" + TABLE_OPTION); err != nil {
+	if _, err := database.DB().Exec("CREATE TABLE IF NOT EXISTS " + table + " (host TEXT, remote_id BIGINT UNSIGNED, series TEXT, contents " + contentType + ", created DATETIME(6), PRIMARY KEY(host(128), remote_id), KEY(series(128), created))" + TABLE_OPTION); err != nil {
 		return nil, err
 	}
 
@@ -120,7 +129,7 @@ func (c *collector) collect(ctx context.Context) error {
 			"remote_id": book.ID,
 			"series":    book.Series,
 			"contents":  book.Contents,
-			"created":   book.Timestamp,
+			"created":   time.Unix(0, book.Timestamp).In(tz),
 		})
 		if err != nil {
 			return fmt.Errorf("failed to insert record: %v\n", err)

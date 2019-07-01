@@ -12,7 +12,7 @@ var (
 func DB() *sqlx.DB {
 	if db == nil {
 		var err error
-		db, err = sqlx.Open("mysql", "root:password@/flos?charset=utf8mb4&parseTime=true")
+		db, err = sqlx.Open("mysql", "root:password@/flos?charset=utf8mb4&parseTime=true&loc=Asia%2FTokyo")
 		if err != nil {
 			panic(err)
 		}

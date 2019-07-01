@@ -14,8 +14,8 @@ github.com/golang/protobuf v1.3.1/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5y
 github.com/jandre/fanotify v0.0.0-20140426212615-4c3a5311d56e/go.mod h1:cYCWaRxFDt77sotGwEwwmBsfGlipVOrrCtCyNjrHWgM=
 github.com/jmoiron/sqlx v1.2.0 h1:41Ip0zITnmWNR/vHV+S4m+VoUivnWY5E4OJfLZjCJMA=
 github.com/jmoiron/sqlx v1.2.0/go.mod h1:1FEQNm3xlJgrMD+FBdI9+xvCksHtbpVBBw5dYhBSsks=
-github.com/kaz/flos v0.0.0-20190701090315-0511d65d4201 h1:xRPHjXIuDYW1RDo2KeWisZTdN3POejp5MvhicQPwxL8=
-github.com/kaz/flos v0.0.0-20190701090315-0511d65d4201/go.mod h1:iuiHNbJAobtnvcLlmGfYAb0pNCZxhw8XsIK2I0/wp24=
+github.com/kaz/flos v0.0.0-20190701094342-2faa9febbe2b h1:j2/tti/Gnku34vZa5hG542MDQ5Q6kBygZ2vXrX35c5M=
+github.com/kaz/flos v0.0.0-20190701094342-2faa9febbe2b/go.mod h1:iuiHNbJAobtnvcLlmGfYAb0pNCZxhw8XsIK2I0/wp24=
 github.com/labstack/echo/v4 v4.1.6 h1:WOvLa4T1KzWCRpANwz0HGgWDelXSSGwIKtKBbFdHTv4=
 github.com/labstack/echo/v4 v4.1.6/go.mod h1:kU/7PwzgNxZH4das4XNsSpBSOD09XIF5YEPzjpkGnGE=
 github.com/labstack/gommon v0.2.9 h1:heVeuAYtevIQVYkGj6A41dtfT91LrvFG220lavpWhrU=
