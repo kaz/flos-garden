@@ -62,6 +62,9 @@ export default {
   created() {
     this.loadInstances();
   },
+  beforeDestroy() {
+    this.stop();
+  },
   methods: {
     async loadInstances() {
       const resp = await fetch(`/api/collector/instance`);

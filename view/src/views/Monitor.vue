@@ -54,13 +54,18 @@
 export default {
   data() {
     return {
+      timer: null,
+
       monitors: [],
       output: null,
     }
   },
   created() {
     this.loadMonitors();
-    setInterval(this.loadMonitors, 10 * 1000);
+    this.timer = setInterval(this.loadMonitors, 10 * 1000);
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
   },
   methods: {
     async loadMonitors() {
