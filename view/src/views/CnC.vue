@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section id="cnc">
     <h1>Target</h1>
     <label :key="'tgt-'+node" v-for="node in nodes">
       <input type="checkbox" v-model="targets" :value="node"> {{ node }}
@@ -28,18 +28,15 @@
 </template>
 
 <style>
-section {
-  padding: 1em 2em;
-}
-textarea {
+#cnc textarea {
   width: 60vw;
   height: 10em;
 }
-pre {
+#cnc pre {
   padding: 1em;
   background-color: #eee;
 }
-pre.err {
+#cnc pre.err {
   background-color: #fff;
   color: #f00;
 }
@@ -71,7 +68,7 @@ export default {
       if(resp.status != 200){
         return alert(await resp.text());
       }
-      this.nodes = await resp.json();
+      this.nodes = (await resp.json()).sort();
     },
     selectAll(checked) {
       if(checked){

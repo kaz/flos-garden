@@ -36,4 +36,8 @@ nav > div {
 nav > div.now {
   border-bottom: 0.3em solid orange;
 }
+
+section {
+  padding: 1em 2em;
+}
 </style>

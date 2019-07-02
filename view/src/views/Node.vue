@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section id="node">
     <h1>Bastion</h1>
     <table>
       <thead>
@@ -9,7 +9,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-bind:key="bastion" v-for="bastion in bastions">
+        <tr :key="bastion" v-for="bastion in bastions">
           <td>{{ bastion }}</td>
           <td><a href="javascript:" @click="deleteInstance(bastion)">delete</a></td>
         </tr>
@@ -30,7 +30,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-bind:key="node" v-for="node in nodes">
+        <tr :key="node" v-for="node in nodes">
           <td>{{ node }}</td>
           <td>
             <a href="javascript:" @click="powerControl(node, 'stop')">stop</a>,
@@ -57,17 +57,14 @@
 </template>
 
 <style>
-section {
-  padding: 1em 2em;
-}
-table {
+#node table {
   border-collapse: collapse;
 }
-th, td {
+#node th, td {
   padding: .5em 2em;
   border: 1px solid #999;
 }
-textarea {
+#node textarea {
   width: 70vw;
   height: 25em;
 }
@@ -102,13 +99,13 @@ export default {
       if(bResp.status != 200){
         return alert(await bResp.text());
       }
-      this.bastions = (await bResp.json()).map(({host}) => host);
+      this.bastions = (await bResp.json()).map(({host}) => host).sort();
 
       const resp = await fetch(`/api/collector/instance`);
       if(resp.status != 200){
         return alert(await resp.text());
       }
-      this.nodes = await resp.json();
+      this.nodes = (await resp.json()).sort();
     },
     async newInstance(bastion) {
       const name = bastion ? this.bastionName : this.nodeName;
