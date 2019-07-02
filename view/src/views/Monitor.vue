@@ -37,7 +37,8 @@
 #monitor table {
   border-collapse: collapse;
 }
-#monitor th, td {
+#monitor th,
+#monitor td {
   padding: .5em 2em;
   border: 1px solid #999;
 }
@@ -72,11 +73,11 @@ export default {
         return alert(await resp.text());
       }
 
-      this.monitors = (await resp.json()).map(mon => {
-        const date = new Date(mon.updated);
-        mon.timestamp = `${date.toLocaleTimeString()}.${date.getMilliseconds()} ${new Date().getTime() - date.getTime() > 30 * 1000 ? " ⚠️" : ""}`;
-        mon.status = parseInt(mon.success) ? "✅" : "❌";
-        return mon;
+      this.monitors = (await resp.json()).rows.map(([host, name, success, output, updated]) => {
+        const date = new Date(updated);
+        const timestamp = `${date.toLocaleTimeString()}.${date.getMilliseconds()} ${new Date().getTime() - date.getTime() > 30 * 1000 ? " ⚠️" : ""}`;
+        const status = parseInt(success) ? "✅" : "❌";
+        return {status, host, name, timestamp, output};
       });
     }
   }

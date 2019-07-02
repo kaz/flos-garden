@@ -50,7 +50,7 @@
 
     <div v-show="settingInstance">
       <h1>Config</h1>
-      <textarea v-model="config"></textarea><br>
+      <textarea spellcheck="false" v-model="config"></textarea><br>
       <button @click="applyConfig()">apply</button>
     </div>
   </section>
@@ -60,7 +60,8 @@
 #node table {
   border-collapse: collapse;
 }
-#node th, td {
+#node th,
+#node td {
   padding: .5em 2em;
   border: 1px solid #999;
 }
@@ -99,7 +100,7 @@ export default {
       if(bResp.status != 200){
         return alert(await bResp.text());
       }
-      this.bastions = (await bResp.json()).map(({host}) => host).sort();
+      this.bastions = (await bResp.json()).rows.map(([host]) => host);
 
       const resp = await fetch(`/api/collector/instance`);
       if(resp.status != 200){

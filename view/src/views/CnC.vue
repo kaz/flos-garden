@@ -10,7 +10,7 @@
     </p>
 
     <h1>Command</h1>
-    <textarea v-model="command"></textarea><br>
+    <textarea spellcheck="false" v-model="command"></textarea><br>
 
     <button @click="execute(false)">execute (oneshot)</button>
     period: <input type="number" v-model="period">
