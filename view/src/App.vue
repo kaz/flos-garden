@@ -6,7 +6,7 @@
       <router-link tag="div" active-class="now" to="/cnc">C&amp;C</router-link>
       <router-link tag="div" active-class="now" to="/monitor">Monitor</router-link>
       <router-link tag="div" active-class="now" to="/audit">Audit</router-link>
-      <router-link tag="div" active-class="now" to="/log">Log</router-link>
+      <router-link tag="div" active-class="now" to="/backup">Backup</router-link>
     </nav>
     <router-view/>
   </main>

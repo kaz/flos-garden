@@ -5,6 +5,7 @@ import Node from './views/Node.vue'
 import CnC from './views/CnC.vue'
 import Monitor from './views/Monitor.vue'
 import Audit from './views/Audit.vue'
+import Backup from './views/Backup.vue'
 
 Vue.use(Router)
 
@@ -25,6 +26,10 @@ export default new Router({
     {
       path: '/audit',
       component: Audit
+    },
+    {
+      path: '/backup',
+      component: Backup
     }
   ]
 })
