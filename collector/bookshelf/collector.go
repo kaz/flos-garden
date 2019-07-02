@@ -32,12 +32,12 @@ func newBookshelfCollector(ctx context.Context, name string, host string, path s
 	logger := log.New(os.Stdout, "[bookshelf name="+name+" host="+host+"] ", log.Ltime)
 
 	table := "bookshelf_data_" + name
-	if _, err := database.DB().Exec("CREATE TABLE IF NOT EXISTS " + table + " (host TEXT, remote_id BIGINT UNSIGNED, series TEXT, contents " + contentType + ", created DATETIME(6), PRIMARY KEY(host(128), remote_id), KEY(series(128), created))" + common.TABLE_OPTION); err != nil {
+	if _, err := database.DB().Exec("CREATE TABLE IF NOT EXISTS " + table + " (host TEXT, remote_id BIGINT UNSIGNED, series TEXT, contents " + contentType + ", created DATETIME(6), PRIMARY KEY(host(128), remote_id), KEY(host(128), series(128), created), KEY(series(128), created), KEY(created))" + common.TABLE_OPTION); err != nil {
 		return nil, err
 	}
 
 	var cur uint64
-	if err := database.DB().QueryRow("SELECT cur FROM bookshelf_cursor WHERE host = ? AND name = ?", host, name).Scan(&cur); err != nil {
+	if err := database.DB().QueryRow("SELECT cur FROM bookshelf_cursor WHERE host = ? AND name = ?", host, name).Scan(&cur); err != nil {
 		logger.Println("No cursor found. Set to 0.")
 		cur = 0
 	}
