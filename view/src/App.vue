@@ -16,7 +16,8 @@
 body, html {
   padding: 0;
   margin: 0;
-  font-family: monospace;
+  font-size: 14px;
+  font-family: "Courier Prime", monospace;
 }
 header {
   padding: 1em 2em;
@@ -30,8 +31,9 @@ nav {
   color: #FFF;
 }
 nav > div {
-  padding: 1em 2em 0.7em 2em;
   cursor: pointer;
+  padding: 0.7em 2em 0.4em 2em;
+  border-bottom: 0.3em solid transparent;
 }
 nav > div.now {
   border-bottom: 0.3em solid orange;
