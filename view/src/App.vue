@@ -13,11 +13,13 @@
 </template>
 
 <style>
+* {
+  font-size: 14px;
+  font-family: "Courier Prime", monospace;
+}
 body, html {
   padding: 0;
   margin: 0;
-  font-size: 14px;
-  font-family: "Courier Prime", monospace;
 }
 header {
   padding: 1em 2em;
