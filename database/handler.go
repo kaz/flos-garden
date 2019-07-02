@@ -36,16 +36,31 @@ func postQuery(c echo.Context) error {
 		return fmt.Errorf("failed to bind request body: %v\n", err)
 	}
 
-	rows, err := DB().Queryx(sql)
+	tx, err := DB().Beginx()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to begin tx: %v\n", err)
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec("SET SQL_SELECT_LIMIT = 1000"); err != nil {
+		return fmt.Errorf("failed to set SQL_SELECT_LIMIT: %v\n", err)
 	}
 
-	resp := []map[string]interface{}{}
+	rows, err := tx.Queryx(sql)
+	if err != nil {
+		return fmt.Errorf("failed to query: %v\n", err)
+	}
+
+	cols, err := rows.Columns()
+	if err != nil {
+		return fmt.Errorf("failed to get columns: %v\n", err)
+	}
+
+	resp := [][]interface{}{}
 	for rows.Next() {
-		row := map[string]interface{}{}
-		if err := rows.MapScan(row); err != nil {
-			return err
+		row, err := rows.SliceScan()
+		if err != nil {
+			return fmt.Errorf("failed to scan row: %v\n", err)
 		}
 
 		for k, v := range row {
@@ -58,5 +73,8 @@ func postQuery(c echo.Context) error {
 		resp = append(resp, row)
 	}
 
-	return c.JSON(http.StatusOK, resp)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"cols": cols,
+		"rows": resp,
+	})
 }
