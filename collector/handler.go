@@ -3,8 +3,8 @@ package collector
 import (
 	"net/http"
 
-	"github.com/kaz/flos-garden/common"
-	"github.com/kaz/flos-garden/database"
+	"github.com/kaz/flos-hortus/common"
+	"github.com/kaz/flos-hortus/database"
 	"github.com/labstack/echo/v4"
 )
 

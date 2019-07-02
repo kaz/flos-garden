@@ -6,11 +6,11 @@ import (
 	"os"
 	"sync"
 
-	"github.com/kaz/flos-garden/collector/lifeline"
+	"github.com/kaz/flos-hortus/collector/lifeline"
 
-	"github.com/kaz/flos-garden/collector/bookshelf"
-	"github.com/kaz/flos-garden/common"
-	"github.com/kaz/flos-garden/database"
+	"github.com/kaz/flos-hortus/collector/bookshelf"
+	"github.com/kaz/flos-hortus/common"
+	"github.com/kaz/flos-hortus/database"
 )
 
 var (

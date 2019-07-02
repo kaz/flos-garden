@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/kaz/flos-garden/common"
+	"github.com/kaz/flos-hortus/common"
 	"github.com/kaz/flos/state"
 	"github.com/labstack/echo/v4"
 )

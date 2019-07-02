@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/kaz/flos-garden/cnc"
-	"github.com/kaz/flos-garden/collector"
-	"github.com/kaz/flos-garden/database"
+	"github.com/kaz/flos-hortus/cnc"
+	"github.com/kaz/flos-hortus/collector"
+	"github.com/kaz/flos-hortus/database"
 	"github.com/kaz/flos/messaging"
 	"github.com/labstack/echo/v4"
 )

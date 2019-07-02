@@ -1,4 +1,4 @@
-module github.com/kaz/flos-garden
+module github.com/kaz/flos-hortus
 
 go 1.12
 
