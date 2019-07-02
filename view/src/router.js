@@ -4,6 +4,7 @@ import Router from 'vue-router'
 import Node from './views/Node.vue'
 import CnC from './views/CnC.vue'
 import Monitor from './views/Monitor.vue'
+import Audit from './views/Audit.vue'
 
 Vue.use(Router)
 
@@ -20,6 +21,10 @@ export default new Router({
     {
       path: '/monitor',
       component: Monitor
+    },
+    {
+      path: '/audit',
+      component: Audit
     }
   ]
 })
