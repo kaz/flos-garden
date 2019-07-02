@@ -1,31 +1,40 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
+  <main>
+    <header>FLOS ❀ Hortus</header>
+    <nav>
+      <router-link tag="div" active-class="now" to="/node">Node</router-link>
+      <router-link tag="div" active-class="now" to="/cnc">C&amp;C</router-link>
+      <router-link tag="div" active-class="now" to="/power">Power</router-link>
+      <router-link tag="div" active-class="now" to="/monitor">Monitor</router-link>
+      <router-link tag="div" active-class="now" to="/audit">Audit</router-link>
+      <router-link tag="div" active-class="now" to="/log">Log</router-link>
+    </nav>
     <router-view/>
-  </div>
+  </main>
 </template>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+body, html {
+  padding: 0;
+  margin: 0;
+  font-family: monospace;
 }
-#nav {
-  padding: 30px;
+header {
+  padding: 1em 2em;
+  background-color: #111;
+  color: #FFF;
 }
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
+nav {
+  display: flex;
+  width: 100vw;
+  background-color: #333;
+  color: #FFF;
 }
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+nav > div {
+  padding: 1em 2em 0.7em 2em;
+  cursor: pointer;
+}
+nav > div.now {
+  border-bottom: 0.3em solid orange;
 }
 </style>
