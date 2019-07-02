@@ -1,6 +1,6 @@
 <template>
   <main>
-    <header>FLOS ❀ Hortus</header>
+    <header>FLOS ❀ ADMIN PANEL</header>
     <nav>
       <router-link tag="div" active-class="now" to="/node">Node</router-link>
       <router-link tag="div" active-class="now" to="/cnc">C&amp;C</router-link>
