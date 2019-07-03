@@ -20,7 +20,7 @@
         </thead>
         <tbody>
           <tr :key="'row-'+i" v-for="(row, i) in rows">
-            <td :key="'row-'+i+'-'+j" v-for="(data, j) in row">{{ data }}</td>
+            <td :key="'row-'+i+'-'+j" v-for="(data, j) in row" v-html="data"></td>
           </tr>
         </tbody>
       </table>
@@ -83,7 +83,7 @@ export default {
       }
 
       this.cols = cols;
-      this.rows = rows;
+      this.rows = rows.map(row => row.map(s => s.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")));
     }
   }
 }
