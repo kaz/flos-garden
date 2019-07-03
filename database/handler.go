@@ -1,6 +1,8 @@
 package database
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -31,12 +33,12 @@ func getBLOB(c echo.Context) error {
 }
 
 func postQuery(c echo.Context) error {
-	var sql string
-	if err := c.Bind(&sql); err != nil {
+	var query string
+	if err := c.Bind(&query); err != nil {
 		return fmt.Errorf("failed to bind request body: %v\n", err)
 	}
 
-	tx, err := DB().Beginx()
+	tx, err := DB().BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return fmt.Errorf("failed to begin tx: %v\n", err)
 	}
@@ -46,7 +48,7 @@ func postQuery(c echo.Context) error {
 		return fmt.Errorf("failed to set SQL_SELECT_LIMIT: %v\n", err)
 	}
 
-	rows, err := tx.Queryx(sql)
+	rows, err := tx.Queryx(query)
 	if err != nil {
 		return fmt.Errorf("failed to query: %v\n", err)
 	}
